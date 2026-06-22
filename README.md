@@ -1,20 +1,27 @@
-# Cryptor Library
+# Cryptor
 
-A simple PHP library for encrypting and decrypting data using AES-256-CBC.
+`webnarmin/cryptor` is a small PHP encryption helper.
+
+Version `2.x` writes authenticated, versioned AES-256-GCM payloads and keeps read support for legacy `1.x` AES-256-CBC payloads to make migrations possible.
 
 ## Installation
-
-You can install the Cryptor library via Composer. Run the following command in your project directory:
 
 ```sh
 composer require webnarmin/cryptor
 ```
 
+## Version Contract
+
+- `1.x` wrote legacy AES-256-CBC payloads.
+- `2.x` writes `cryptor:v2:` AES-256-GCM payloads.
+- `2.x` can decrypt legacy `1.x` payloads.
+- `2.x` is a major version because encrypted output format changes.
+
+## Security Model
+
+`Cryptor` is a symmetric encryption helper. The `$privateKey` and `$publicKey` names are kept from the `1.x` API, but this library does not implement public-key encryption. Both values are used as key material for deriving the encryption key.
+
 ## Usage
-
-Here's a quick example of how to use the Cryptor class:
-
-### Encrypting Data
 
 ```php
 <?php
@@ -29,41 +36,25 @@ $data = 'Hello, world!';
 
 $cryptor = new Cryptor($privateKey);
 $encryptedData = $cryptor->encrypt($data, $publicKey);
-
-echo 'Encrypted Data: ' . $encryptedData;
+$decryptedData = $cryptor->decrypt($encryptedData, $publicKey);
 ```
 
-### Decrypting Data
+`decrypt()` preserves the `1.x` soft-failure behavior and returns an empty string when decryption fails.
+
+For strict failure handling, use `decryptOrFail()`:
 
 ```php
-<?php
-
-require 'vendor/autoload.php';
-
-use webnarmin\Cryptor\Cryptor;
-
-$privateKey = 'your_private_key';
-$publicKey = 'your_public_key';
-$encryptedData = 'your_encrypted_data';
-
-$cryptor = new Cryptor($privateKey);
-$decryptedData = $cryptor->decrypt($encryptedData, $publicKey);
-
-echo 'Decrypted Data: ' . $decryptedData;
+try {
+    $decryptedData = $cryptor->decryptOrFail($encryptedData, $publicKey);
+} catch (\webnarmin\Cryptor\Exception\CryptorException $exception) {
+    // Invalid payload, wrong key, tampered ciphertext, or OpenSSL failure.
+}
 ```
 
 ## Running Tests
 
-To run tests, you need to have PHPUnit installed. If you don't have it installed, you can install it via Composer:
-
 ```sh
-composer require --dev phpunit/phpunit
-```
-
-Run the tests using the following command:
-
-```sh
-vendor/bin/phpunit
+composer check
 ```
 
 ## License
