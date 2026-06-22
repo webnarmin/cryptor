@@ -1,0 +1,23 @@
+{
+    "name": "webnarmin/cryptor",
+    "description": "A simple encryption and decryption library",
+    "type": "library",
+    "require": {
+        "php": ">=7.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "webnarmin\\Cryptor\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Alex",
+            "email": "webnarmin@gmail.com"
+        }
+    ],
+    "license": "MIT",
+    "require-dev": {
+        "phpunit/phpunit": "^11.2"
+    }
+}
